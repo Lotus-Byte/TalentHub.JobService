@@ -82,5 +82,30 @@ public sealed class Job : IEntityTypeConfiguration<Entities.Job>
         builder
             .HasIndex(b => b.CreateUserId);
 
+        // FullText search support
+
+        builder
+            .HasGeneratedTsVectorColumn(
+                p => p.ResponsibilitiesVector,
+                DbConfig.FT_SEARCH_CONFIG,
+                p => p.Responsibilities)
+            .HasIndex(p => p.ResponsibilitiesVector)
+            .HasMethod("GIN");
+
+        builder
+            .HasGeneratedTsVectorColumn(
+                p => p.RequirementsVector,
+                DbConfig.FT_SEARCH_CONFIG,
+                p => p.Requirements)
+            .HasIndex(p => p.RequirementsVector)
+            .HasMethod("GIN");
+
+        builder
+            .HasGeneratedTsVectorColumn(
+                p => p.ConditionsVector,
+                DbConfig.FT_SEARCH_CONFIG,
+                p => p.Conditions)
+            .HasIndex(p => p.ConditionsVector)
+            .HasMethod("GIN");
     }
 }

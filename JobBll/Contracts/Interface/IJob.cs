@@ -12,4 +12,6 @@ public interface IJob
     Task UpdateAsync(CancellationToken cancellationToken = default);
 
     Task RemoveJobAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<JobDataDto>> SearchAsync(SearchCommand command, CancellationToken cancellationToken = default);
 }

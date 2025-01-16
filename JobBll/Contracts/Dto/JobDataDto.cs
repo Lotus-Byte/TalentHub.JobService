@@ -18,5 +18,8 @@ public sealed record JobDataDto
 
     public string Conditions { get; init; } = null!;
 
-    public DateTime Created { get; init; }
+    /// <summary>
+    /// Дата создания
+    /// </summary>
+    public DateTime CreateStamp { get; init; }
 }

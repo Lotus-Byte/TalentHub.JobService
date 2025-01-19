@@ -13,12 +13,14 @@ public static class JobDataAccessRegisterExtensions
     public static IServiceCollection AddJobDataAccessContext(
         this IServiceCollection services,
         IConfiguration configuration)
-    { 
+    {
+
+        var connectionStringSection = configuration.GetConnectionString(DbConfig.CONNECTION_STRING_KEY);
         services
             .AddDbContext<JobDbContext>(options =>
             {
                 options
-                    .UseNpgsql(configuration.GetConnectionString(DbConfig.CONNECTION_STRING_KEY))
+                    .UseNpgsql(connectionStringSection)
                     .UseSnakeCaseNamingConvention();
             });
 

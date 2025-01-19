@@ -1,8 +1,9 @@
-﻿using JobBll.Contracts.Command;
-using JobBll.Contracts.Interface;
-using JobApi.Contracts;
-using Microsoft.AspNetCore.Mvc;
+﻿using JobApi.Contracts;
+using JobBll.Contracts.Command;
 using JobBll.Contracts.Dto;
+using JobBll.Contracts.Interface;
+
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,9 +30,9 @@ public class JobsController : ControllerBase
     /// <exception cref="NotImplementedException"></exception>
     /// <example>POST: api/<JobsController></example>
     [HttpPost("search")]
-    public Task<IReadOnlyCollection<JobDataDto>> Search(SearchCommand command, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<JobDataDto>> Search(SearchCommand command, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _jobService.SearchAsync(command, cancellationToken);
     }
 
     /// <summary>

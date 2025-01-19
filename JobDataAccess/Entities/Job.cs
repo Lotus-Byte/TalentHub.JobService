@@ -1,4 +1,6 @@
-﻿namespace JobDataAccess.Entities;
+﻿using NpgsqlTypes;
+
+namespace JobDataAccess.Entities;
 
 public sealed class Job : IAggregateRoot<long>
 {
@@ -23,4 +25,14 @@ public sealed class Job : IAggregateRoot<long>
     public DateTime Created { get; set; }
 
     public Guid CreateUserId { get; set; }
+
+    #region FullText support
+
+    public NpgsqlTsVector ResponsibilitiesVector { get; set; } = null!;
+
+    public NpgsqlTsVector RequirementsVector { get; set; } = null!;
+
+    public NpgsqlTsVector ConditionsVector { get; set; } = null!;
+
+    #endregion
 }

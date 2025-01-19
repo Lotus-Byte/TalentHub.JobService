@@ -1,8 +1,12 @@
 ﻿using JobBll.Contracts.Command;
 using JobBll.Contracts.Dto;
 using JobBll.Contracts.Interface;
+
 using JobDataAccess.Contracts.Repository;
+using JobDataAccess.Contracts.Query;
 using JobDataAccess.Entities;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace JobBll.Service;
 
@@ -29,7 +33,7 @@ internal sealed class JobService : IJob
             Responsibilities = entity.Responsibilities,
             Requirements = entity.Requirements,
             Conditions = entity.Conditions,
-            Created = entity.Created,
+            CreateStamp = entity.Created,
         };
 
         return ret;
@@ -73,7 +77,34 @@ internal sealed class JobService : IJob
         {
             await _jobRepository.SaveChangesAsync(cancellationToken);  
         }
+    }
 
-        // TODO: подумать, как возвращать результат
+    public async Task<IReadOnlyCollection<JobDataDto>> SearchAsync(SearchCommand command, CancellationToken cancellationToken = default)
+    {
+        var request = new SearchJobsQueryRequest
+        {
+            SearchText = command.SearchText,
+            City = command.City,
+            MinSalary = command.MinSalary,
+            MaxSalary = command.MaxSalary,
+        };
+
+        var jobsQuery = _jobRepository.SearchJobsQuery(request)
+            .Select(j => new JobDataDto
+            {
+                Id = j.Id,
+                ObjectId = j.ObjectId,
+                Name = j.Name,
+                MinSalary = j.MinSalary,
+                MaxSalary = j.MaxSalary,
+                Responsibilities = j.Responsibilities,
+                Requirements = j.Requirements,
+                Conditions = j.Conditions,
+                CreateStamp = j.Created,
+            });
+
+        var ret = await jobsQuery.ToArrayAsync(cancellationToken);
+
+        return ret;
     }
 }

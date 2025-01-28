@@ -1,5 +1,6 @@
 using JobApi.Infrastructure.Swagger;
 using JobBll.Infrastructure;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

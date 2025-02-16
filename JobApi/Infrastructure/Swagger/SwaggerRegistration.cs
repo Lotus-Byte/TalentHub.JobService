@@ -1,5 +1,7 @@
 ﻿using Microsoft.OpenApi.Models;
+
 using System.Reflection;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobApi.Infrastructure.Swagger;

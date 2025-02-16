@@ -20,7 +20,15 @@
       }
     },
     "Container (Dockerfile)": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "containerName": "jobapi",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger/index.html",
+      "environmentVariables": {
+        "ASPNETCORE_HTTP_PORTS": "5000"
+      },
+      "useSSL": false,
+      "httpPort": 5000
     }
   },
   "iisSettings": {

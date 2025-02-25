@@ -5,7 +5,7 @@ namespace JobBll.Contracts.Interface;
 
 public interface IJob
 {
-    Task<JobDataDto> GetJobDataAsync(int id, CancellationToken cancellationToken = default);
+    Task<JobDataDto?> GetJobDataAsync(int id, CancellationToken cancellationToken = default);
 
     Task<CreateJobDto> CreateJobAsync(CreateJobCommand command, CancellationToken cancellationToken = default);
 

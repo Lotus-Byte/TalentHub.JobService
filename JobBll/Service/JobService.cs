@@ -7,36 +7,47 @@ using JobDataAccess.Contracts.Query;
 using JobDataAccess.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using MassTransit;
+using JobBll.Contracts.Internal;
 
 namespace JobBll.Service;
 
 internal sealed class JobService : IJob
 {
     private readonly IJobRepository _jobRepository;
+    private readonly IBusControl _busControl;
 
-    public JobService(IJobRepository jobRepository) =>
-        _jobRepository = jobRepository;
-
-    public async Task<JobDataDto> GetJobDataAsync(int id, CancellationToken cancellationToken = default)
+    public JobService(IJobRepository jobRepository,
+        IBusControl busControl)
     {
-        // TODO: Нужны только неудаленные вакансии
+        _jobRepository = jobRepository;
+        _busControl = busControl;
+    }
+        
+
+    public async Task<JobDataDto?> GetJobDataAsync(int id, CancellationToken cancellationToken = default)
+    {
         var entity = await _jobRepository.GetAsync(id, cancellationToken);
 
-        // TODO: если объект не найден, сервис не должен падать
-        var ret = new JobDataDto
+        if (entity != null)
         {
-            Id = entity.Id,
-            ObjectId = entity.ObjectId,
-            Name = entity.Name,
-            MinSalary = entity.MinSalary,
-            MaxSalary = entity.MaxSalary,
-            Responsibilities = entity.Responsibilities,
-            Requirements = entity.Requirements,
-            Conditions = entity.Conditions,
-            CreateStamp = entity.Created,
-        };
+            var ret = new JobDataDto
+            {
+                Id = entity.Id,
+                ObjectId = entity.ObjectId,
+                Name = entity.Name,
+                MinSalary = entity.MinSalary,
+                MaxSalary = entity.MaxSalary,
+                Responsibilities = entity.Responsibilities,
+                Requirements = entity.Requirements,
+                Conditions = entity.Conditions,
+                CreateStamp = entity.Created,
+            };
 
-        return ret;
+            return ret;
+        }
+        
+        return null;
     }
 
     public async Task<CreateJobDto> CreateJobAsync(CreateJobCommand command, CancellationToken cancellationToken = default)
@@ -52,15 +63,30 @@ internal sealed class JobService : IJob
             CreateUserId = command.CreateUserId,
         };
 
-        var createResult = await _jobRepository.AddAsync(entity, cancellationToken);
-        await _jobRepository.SaveChangesAsync(cancellationToken);
-
-        var ret = new CreateJobDto
+        try
         {
-            Id = createResult.Id,
-            ObjectId = createResult.ObjectId,
-        };
-        return ret;
+            var createResult = await _jobRepository.AddAsync(entity, cancellationToken);
+            await _jobRepository.SaveChangesAsync(cancellationToken);
+
+            await _busControl.Publish<BusConfirmationMessage>(new
+            {
+                JobName = entity.Name,
+                CreateUserId = entity.CreateUserId,
+                Timestamp = entity.Created.ToUniversalTime(),
+            },
+            cancellationToken);
+
+            var ret = new CreateJobDto
+            {
+                Id = createResult.Id,
+                ObjectId = createResult.ObjectId,
+            };
+            return ret;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     public Task UpdateAsync(CancellationToken cancellationToken = default)
